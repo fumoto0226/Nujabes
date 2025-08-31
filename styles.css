@@ -290,10 +290,10 @@ section.page {
 
 /* ============ 大标题：灰色大字 & 左右交替 ============ */
 .sec-title {
-  margin: 12px 0 24px;
-  font-size: clamp(36px, 6vw, 64px);
+  margin: 1px 0 44px;
+  font-size: 48px;
   font-weight: 600;
-  color: #9A9A9A;
+  color: #464646;
   letter-spacing: 0.02em;
   position: relative;
 }
@@ -304,8 +304,8 @@ section.page {
   top: -9px;
   left: 0;
   right: 0;
-  height: 2px;  /* 从1px加粗到2px */
-  background: #DADADA;
+  height: 1.5px;  /* 粗细 */
+  background: #b4b4b4;
 }
 
 .sec-title.align-left {
@@ -318,8 +318,8 @@ section.page {
 
 /* ============ 人物区块样式 ============ */
 .hero-photo {
-  max-width: min(720px, 85%);
-  margin: 0 auto 24px;
+  max-width: min(720px, 55%);
+  margin: 0 auto 64px;
 }
 
 .hero-photo img {
@@ -329,17 +329,18 @@ section.page {
 }
 
 .intro {
-  max-width: min(720px, 85%);
-  margin: 0 auto 24px;
+  max-width: min(720px, 60%);
+  margin: 0 auto 64px;
   line-height: 1.9;
+  font-size: 15.5px;
 }
 
 /* 小标题 来歴 */
 .subhead {
-  max-width: min(720px, 85%);
-  margin: 36px auto 12px;
-  font-size: 22px;
-  font-weight: 700;
+  max-width: min(720px, 60%);
+  margin: 76px auto 32px;
+  font-size: 30px;
+  font-weight: 600;
 }
 
 /* 来歴：两列布局 = 左列正文 + 右列年份（右对齐） */
@@ -347,7 +348,8 @@ section.page {
   list-style: none;
   padding: 0;
   margin: 0 auto;
-  max-width: min(720px, 85%);
+  max-width: min(720px, 60%);
+  font-size: 15.5px;
 }
 
 .timeline li {
@@ -373,9 +375,9 @@ section.page {
 .albums-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 64px 48px;  /* 区块间距调整：从48px 36px改为64px 48px */
-  max-width: min(1000px, 90%);  /* 区块大小调整：从1100px, 94%改为1000px, 90% */
-  margin: 12px auto 0;
+  gap: 64px 55px;  /* 区块间距*/
+  max-width: min(900px, 80%);  /* 区块大小*/
+  margin: 26px auto 0;
 }
 
 @media (max-width: 820px) {
@@ -396,21 +398,23 @@ section.page {
 
 .album-year {
   font-weight: 700;
-  color: #5f5f5f;
+  color: #252525;
   justify-self: start;
+  font-size: 14px;
 }
 
 .album-title {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #5f5f5f;
+  color: #252525;
   justify-self: end;
+  font-size: 16px;
 }
 
 /* 封面与曲目 */
 .album-cover {
-  margin: 6px 0 10px;
+  margin: 6px 0 25px;
 }
 
 .album-cover img {
