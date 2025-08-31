@@ -112,20 +112,15 @@ const seek = document.getElementById('seek');
 const cur = document.getElementById('cur');
 const dur = document.getElementById('dur');
 
-const fab = document.getElementById('fab');
-const fabToggle = document.getElementById('fabToggle');
-const fabPlay = document.getElementById('fabPlay');
-const fabPause = document.getElementById('fabPause');
-const fabSeek = document.getElementById('fabSeek');
-const fabCur = document.getElementById('fabCur');
-const fabDur = document.getElementById('fabDur');
+// ==== 圆圈播放器 DOM ====
+const circle = document.getElementById('circlePlayer');
+const cpPlay = document.getElementById('cpPlay');
+const cpPause= document.getElementById('cpPause');
 
 // 设置播放/暂停图标状态
 function setPlaying(on) {
   iconPlay.style.display = on ? 'none' : '';
   iconPause.style.display = on ? '' : 'none';
-  fabPlay.style.display = on ? 'none' : '';
-  fabPause.style.display = on ? '' : 'none';
 }
 
 // HOME播放器切换按钮事件
@@ -149,25 +144,7 @@ btnToggle.onclick = async () => {
   }
 };
 
-// 悬浮播放器切换按钮事件
-fabToggle.onclick = async () => {
-  if (audio.paused) {
-    if (!audio.currentSrc) {
-      const src = playlist[currentId] || playlist[0];
-      if (src) {
-        audio.src = src;
-        audio.load();
-      }
-    }
-    if (audio.readyState < 2) {
-      await new Promise(res => audio.addEventListener('loadeddata', res, { once: true }));
-    }
-    pendingPlay = true;
-    safePlay(true);
-  } else {
-    audio.pause();
-  }
-};
+
 
 // 音频播放状态事件监听
 audio.addEventListener('play', () => {
@@ -196,14 +173,10 @@ function fmt(t) {
 // 更新播放器UI
 function updateUI() {
   const p = (audio.currentTime / (audio.duration || 1));
-  [seek, fabSeek].forEach(sl => {
-    sl.value = Math.round(p * 1000);
-    sl.style.setProperty('--p', (p * 100) + '%');
-  });
+  seek.value = Math.round(p * 1000);
+  seek.style.setProperty('--p', (p * 100) + '%');
   cur.textContent = fmt(audio.currentTime);
   dur.textContent = fmt(audio.duration);
-  fabCur.textContent = cur.textContent;
-  fabDur.textContent = dur.textContent;
 }
 
 // 音频事件监听
@@ -211,10 +184,8 @@ function updateUI() {
 ['loadedmetadata', 'emptied', 'play', 'durationchange'].forEach(evt => audio.addEventListener(evt, updateTrackTitle));
 
 // 进度条拖动事件
-[seek, fabSeek].forEach(sl => {
-  sl.addEventListener('input', () => sl.style.setProperty('--p', (sl.value / 10) + '%'));
-  sl.addEventListener('change', () => audio.currentTime = (audio.duration || 0) * (sl.value / 1000));
-});
+seek.addEventListener('input', () => seek.style.setProperty('--p', (seek.value / 10) + '%'));
+seek.addEventListener('change', () => audio.currentTime = (audio.duration || 0) * (seek.value / 1000));
 
 // ============ 频谱可视化 ============
 
@@ -264,11 +235,68 @@ const navSticky = document.getElementById('navSticky');
 const navInline = document.getElementById('navInline');
 let activeLockHash = null; // 点击导航时锁定高亮，避免滚动中闪烁
 
+// 统一管理浮动导航和浮动进度条的显示/隐藏
+function updateFloatingElements() {
+  // 获取当前可见的区块
+  const homeSection = document.getElementById('home');
+  const jinbutsuSection = document.getElementById('jinbutsu');
+  const albumsSection = document.getElementById('albums');
+  const samuraiSection = document.getElementById('samurai');
+  const liveSection = document.getElementById('live');
+  
+  // 检查各个区块的可见性
+  const homeVisible = homeSection && homeSection.getBoundingClientRect().top < window.innerHeight && homeSection.getBoundingClientRect().bottom > 0;
+  const jinbutsuVisible = jinbutsuSection && jinbutsuSection.getBoundingClientRect().top < window.innerHeight && jinbutsuSection.getBoundingClientRect().bottom > 0;
+  const albumsVisible = albumsSection && albumsSection.getBoundingClientRect().top < window.innerHeight && albumsSection.getBoundingClientRect().bottom > 0;
+  const samuraiVisible = samuraiSection && samuraiSection.getBoundingClientRect().top < window.innerHeight && samuraiSection.getBoundingClientRect().bottom > 0;
+  const liveVisible = liveSection && liveSection.getBoundingClientRect().top < window.innerHeight && liveSection.getBoundingClientRect().bottom > 0;
+  
+  // 检查页尾是否可见
+  const siteFooter = document.getElementById('siteFooter');
+  const footerVisible = siteFooter && siteFooter.getBoundingClientRect().top < window.innerHeight;
+  
+  // 根据区块可见性和页尾可见性决定显示状态
+  let showNav = false;
+  let showFab = false;
+  
+  if (homeVisible) {
+    // home页面：浮动导航和浮动进度条都隐藏
+    showNav = false;
+    showFab = false;
+  } else if (footerVisible) {
+    // 页尾可见时：只显示导航，隐藏进度条
+    showNav = true;
+    showFab = false;
+  } else if (jinbutsuVisible || albumsVisible) {
+    // 人物和アルバム页面：两者都显示
+    showNav = true;
+    showFab = true;
+  } else if (samuraiVisible || liveVisible) {
+    // サムライ チャンプルー和ライブ页面：显示导航，隐藏进度条
+    showNav = true;
+    showFab = false;
+  } else {
+    // 其他情况：默认显示导航，隐藏进度条
+    showNav = true;
+    showFab = false;
+  }
+  
+  // 应用显示状态
+  navSticky.classList.toggle('show', showNav);
+  circle.classList.toggle('show', showFab);
+}
+
 // 粘性导航 & 底部播放器：当 home 内的导航看不见时显示
 const io = new IntersectionObserver(([e]) => {
   const out = !e.isIntersecting;
-  navSticky.classList.toggle('show', out);
-  fab.classList.toggle('show', out);
+  // 当home导航不可见时，调用统一更新函数
+  if (out) {
+    updateFloatingElements();
+  } else {
+    // home导航可见时，隐藏所有浮动元素
+    navSticky.classList.remove('show');
+    circle.classList.remove('show');
+  }
 }, { rootMargin: '0px 0px 0px 0px' }); // 当导航完全离开视口时触发
 
 io.observe(homeBottom);
@@ -280,7 +308,7 @@ const sections = [
   document.getElementById('home'),
   document.getElementById('jinbutsu'),
   document.getElementById('albums'),
-  document.getElementById('rep'),
+  document.getElementById('samurai'),
   document.getElementById('live')
 ];
 
@@ -296,6 +324,10 @@ function setActiveNav(hash) {
 // 区块可见性观察器
 const secObserver = new IntersectionObserver(() => {
   if (activeLockHash) return; // 滚动期间锁定，忽略自动高亮
+  
+  // 更新浮动元素的显示状态
+  updateFloatingElements();
+  
   // 在所有区块中，选择"可见比例足够"的、中心点最接近视口中线者
   const mid = window.innerHeight / 2;
   let best = null;
@@ -629,3 +661,330 @@ function initFirstTrackPaused() {
 
 // 提前到脚本就绪阶段
 initFirstTrackPaused();
+
+// ============ サムライ チャンプルー 部分功能 ===============
+
+// ---------- 工具：读当前旋转角（deg） ----------
+function getRotationDeg(el){
+  const t = getComputedStyle(el).transform;
+  if (t === 'none') return 0;
+  const m = new DOMMatrix(t);
+  return Math.atan2(m.b, m.a) * 180 / Math.PI; // -180..180
+}
+
+// ---------- SFX：按下即响（独立于主播放器） ----------
+const SFX = ['music/dj01.mp3','music/dj02.mp3','music/dj03.mp3'];
+function playRandomSfx(){
+  try{
+    sfxAudio.src = SFX[Math.floor(Math.random()*SFX.length)];
+    sfxAudio.currentTime = 0;
+    sfxAudio.volume = 0.7;
+    sfxAudio.play().catch(()=>{});
+  }catch{}
+}
+
+// ---------- 点击合并 + 单段缓动补间 ----------
+(function initRecordClickSpin(){
+  const img = document.getElementById('record');
+  if(!img) return;
+
+  // 防止浏览器原生拖拽
+  img.setAttribute('draggable', 'false');
+  img.addEventListener('dragstart', e => e.preventDefault());
+
+  const BASE_PER_TURN = 1100;                   // 一圈时长（ms），可调
+  const EASE = 'cubic-bezier(.22,1,.36,1)';     // ease-out（也可换 ease-in-out）
+  let batch = 0;                                // 本次合并内的点击次数
+  let timer = null;
+  let anim  = null;
+
+  // 只用 pointerdown，避免一次点击触发两次（pointerdown + mousedown）
+  img.addEventListener('pointerdown', ()=>{
+    playRandomSfx();         // ★ 按下即响
+    batch++;                 // 记录一次点击
+    clearTimeout(timer);
+    // 140ms 内的快速连续点击合并为一次动画
+    timer = setTimeout(flushBatch, 140);
+  });
+
+  function flushBatch(){
+    if (!batch) return;
+    const turns = batch;     // 合并得到的圈数
+    batch = 0;
+
+    // 从"当前角度"开始，做整段 turns 圈的动画（只在开头/结尾缓动）
+    const start = getRotationDeg(img);          // 动画中也能读取当前值
+    const end   = start + 360 * turns;          // 目标角度
+
+    // 如有正在运行的动画，先取消，避免叠加
+    if (anim) try { anim.cancel(); } catch {}
+
+    anim = img.animate(
+      [
+        { transform: `rotate(${start}deg)` },
+        { transform: `rotate(${end}deg)` }
+      ],
+      { duration: BASE_PER_TURN * turns, easing: EASE, fill: 'forwards' }
+    );
+    anim.finished.catch(()=>{}); // 忽略中断错误
+  }
+})();
+
+// 独立 SFX，不打断主音乐
+const sfxAudio = document.getElementById('sfxAudio');
+const sfxList  = ['music/dj01.mp3','music/dj02.mp3','music/dj03.mp3'];
+
+function playRandomSfx(){
+  if(!sfxAudio) return;
+  const randomIndex = Math.floor(Math.random() * sfxList.length);
+  const src = sfxList[randomIndex];
+  console.log('播放随机音效:', src); // 调试用
+  sfxAudio.src = src;
+  sfxAudio.volume = 0.6;   // 自行调节
+  sfxAudio.currentTime = 0;
+  sfxAudio.play().catch((err)=>{
+    console.log('音效播放失败:', err);
+  });
+}
+
+// =============== 2) 小播放器（与主播放器/视频互斥） ===============
+function initLocalPlayers(){
+  console.log('开始初始化小播放器...');
+  const cards = document.querySelectorAll('.local-player');
+  const videos = document.querySelectorAll('.samurai-video');
+  console.log('找到小播放器数量:', cards.length);
+  console.log('找到视频数量:', videos.length);
+
+  // 工具函数
+  const fmt = t => !isFinite(t)? '0:00' : `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+  
+  // 暂停所有其他播放器
+  function pauseOthers(currentAudio) {
+    // 暂停主播放器
+    if (audio && !audio.paused) audio.pause();
+    // 暂停所有视频
+    videos.forEach(v => v.pause());
+    // 暂停其他小播放器
+    cards.forEach(card => {
+      const otherAudio = card._audio;
+      if (otherAudio && otherAudio !== currentAudio && !otherAudio.paused) {
+        otherAudio.pause();
+        const btn = card.querySelector('.lp-toggle');
+        if (btn) btn.textContent = '▶︎';
+      }
+    });
+  }
+
+  // 初始化每个小播放器
+  cards.forEach(card => {
+    const src = card.dataset.src;
+    const btn = card.querySelector('.lp-toggle');
+    const bar = card.querySelector('.lp-seek');
+    const cur = card.querySelector('.lp-cur');
+    const dur = card.querySelector('.lp-dur');
+
+    console.log('初始化小播放器:', src);
+
+    // 创建音频对象
+    const a = new Audio();
+    a.src = src;
+    a.preload = 'metadata';
+    card._audio = a; // 保存引用
+
+    // 播放/暂停按钮
+    btn.addEventListener('click', () => {
+      console.log('点击播放按钮:', src);
+      if (a.paused) {
+        pauseOthers(a);
+        a.play().then(() => {
+          btn.textContent = '❚❚';
+          console.log('播放成功:', src);
+        }).catch(err => {
+          console.log('播放失败:', err);
+        });
+      } else {
+        a.pause();
+        btn.textContent = '▶︎';
+      }
+    });
+
+    // 进度条
+    bar.addEventListener('input', () => {
+      const percent = bar.value / 1000;
+      bar.style.setProperty('--p', (percent * 100) + '%');
+    });
+
+    bar.addEventListener('change', () => {
+      a.currentTime = a.duration * (bar.value / 1000);
+    });
+
+    // 更新UI
+    function updateUI() {
+      if (a.duration) {
+        const percent = a.currentTime / a.duration;
+        bar.value = Math.round(percent * 1000);
+        bar.style.setProperty('--p', (percent * 100) + '%');
+        cur.textContent = fmt(a.currentTime);
+        dur.textContent = fmt(a.duration);
+      }
+    }
+
+    // 监听音频事件
+    a.addEventListener('timeupdate', updateUI);
+    a.addEventListener('loadedmetadata', updateUI);
+    a.addEventListener('play', () => {
+      btn.textContent = '❚❚';
+      pauseOthers(a);
+    });
+    a.addEventListener('pause', () => {
+      btn.textContent = '▶︎';
+    });
+  });
+
+  // 主播放器播放时暂停其他所有
+  if (audio) {
+    audio.addEventListener('play', () => {
+      cards.forEach(card => {
+        const a = card._audio;
+        if (a && !a.paused) {
+          a.pause();
+          const btn = card.querySelector('.lp-toggle');
+          if (btn) btn.textContent = '▶︎';
+        }
+      });
+      videos.forEach(v => v.pause());
+    });
+  }
+
+  // 视频播放时暂停其他所有
+  videos.forEach(v => {
+    v.addEventListener('play', () => {
+      if (audio && !audio.paused) audio.pause();
+      cards.forEach(card => {
+        const a = card._audio;
+        if (a && !a.paused) {
+          a.pause();
+          const btn = card.querySelector('.lp-toggle');
+          if (btn) btn.textContent = '▶︎';
+        }
+      });
+    });
+  });
+}
+
+// ------- 返回顶部 -------
+document.getElementById('siteFooter')?.addEventListener('click', ()=>{
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ------- YouTube Iframe API （直播区播放器）-------
+(function initLiveYoutube(){
+  const BOX_ID = 'ytLive';
+  if(!document.getElementById(BOX_ID)) return;
+
+  // 动态加载 API
+  function loadYT(cb){
+    if (window.YT && window.YT.Player) return cb();
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = cb;
+  }
+
+  loadYT(()=>{
+    // 创建播放器（videoId 从原链接提取）
+    window.livePlayer = new YT.Player(BOX_ID, {
+      videoId: 'FGOEMvymSIE',
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        // 允许 JS 控制
+        enablejsapi: 1,
+        origin: location.origin
+      },
+      events: {
+        onStateChange: (e)=>{
+          // 播放视频 => 停主播放器 & 停所有小播放器 & 停页面内 <video>
+          if (e.data === YT.PlayerState.PLAYING) {
+            try{ audio.pause(); }catch{}
+            // 暂停所有小播放器（通过local-player容器找到音频）
+            document.querySelectorAll('.local-player').forEach(card => {
+              if (card._audio && !card._audio.paused) {
+                card._audio.pause();
+                const btn = card.querySelector('.lp-toggle');
+                if (btn) btn.textContent = '▶︎';
+              }
+            });
+            document.querySelectorAll('.samurai-video').forEach(v=>v.pause());
+          }
+        }
+      }
+    });
+  });
+
+  // 主播放器播放 => 暂停 YouTube
+  audio?.addEventListener('play', ()=>{
+    try{ window.livePlayer?.pauseVideo(); }catch{}
+  });
+
+  // 任意小播放器播放 => 暂停 YouTube（用捕获阶段监听）
+  document.addEventListener('play', (ev)=>{
+    if (ev.target?.closest('.local-player')) {
+      try{ window.livePlayer?.pauseVideo(); }catch{}
+    }
+  }, true);
+})();
+
+
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM加载完成，初始化小播放器...');
+  initLocalPlayers();
+  
+  // 添加导航点击事件监听，确保直接跳转时也能正确显示浮动元素
+  const allNavLinks = document.querySelectorAll('nav a[href^="#"]');
+  allNavLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').substring(1);
+      const targetSection = document.getElementById(targetId);
+      
+      if (targetSection) {
+        // 平滑滚动到目标区块
+        targetSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // 延迟更新浮动元素状态，等待滚动完成
+        setTimeout(() => {
+          updateFloatingElements();
+        }, 100);
+      }
+    });
+  });
+});
+
+// ------- 圆圈播放器逻辑 -------
+// 点击：切换播放/暂停
+circle?.addEventListener('click', ()=>{
+  if (audio.paused) { 
+    (window.safePlay ? safePlay() : audio.play()).catch?.(()=>{}); 
+  } else { 
+    audio.pause(); 
+  }
+});
+
+// 切图标
+function setCircleIcon(){
+  if (!circle) return;
+  const on = !audio.paused;
+  cpPlay.style.display  = on ? 'none' : '';
+  cpPause.style.display = on ? ''    : 'none';
+}
+audio.addEventListener('play',  setCircleIcon);
+audio.addEventListener('pause', setCircleIcon);
+
+// 初始同步一次
+setCircleIcon();
+
+

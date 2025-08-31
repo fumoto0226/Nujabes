@@ -14,16 +14,12 @@
       <a href="#home">ホーム</a><span class="sep">／</span>
       <a href="#jinbutsu">人物</a><span class="sep">／</span>
       <a href="#albums">アルバム</a><span class="sep">／</span>
-      <a href="#rep">代表作</a><span class="sep">／</span>
-      <a href="#live">コンサート</a>
+      <a href="#samurai">サムライ チャンプルー</a><span class="sep">／</span>
+      <a href="#live">ライブ</a>
     </div>
   </nav>
 
-  <!-- 浮动迷你播放器（默认隐藏） -->
-  <div class="player-fab" id="fab">
-    <button class="btn" id="fabToggle" aria-label="播放/暂停"><img id="fabPlay" src="img/bofang.svg" alt=""><img id="fabPause" src="img/zanting.svg" alt="" style="display:none"></button>
-    <input id="fabSeek" class="slider" type="range" min="0" max="1000" value="0" step="1" />
-  </div>
+
 
   <!-- HOME -->
   <section id="home">
@@ -60,8 +56,8 @@
         <a href="#home">ホーム</a><span class="sep">／</span>
         <a href="#jinbutsu">人物</a><span class="sep">／</span>
         <a href="#albums">アルバム</a><span class="sep">／</span>
-        <a href="#rep">代表作</a><span class="sep">／</span>
-        <a href="#live">コンサート</a>
+        <a href="#samurai">サムライ チャンプルー</a><span class="sep">／</span>
+        <a href="#live">ライブ</a>
       </nav>
     </div>
 
@@ -306,27 +302,98 @@
     </div>
   </section>
 
-  <!-- 代表作 -->
-  <section id="rep" class="page section-block">
+  <!-- サムライ チャンプルー -->
+  <section id="samurai" class="page section-block">
     <div class="container">
-      <h2 class="sec-title align-left">代表作</h2>
-      <div class="intro">
-        <p>Nujabesの代表的な楽曲とアルバムについて紹介します。</p>
-        <p>ジャズとヒップホップを融合させた独自のサウンドで、多くのリスナーに影響を与えました。</p>
+      <h2 class="sec-title align-left">サムライ チャンプルー</h2>
+
+      <!-- 1) 旋转唱片 -->
+      <div class="record-wrap">
+        <div id="recordSpin">
+          <img id="record" src="img/samurai01.png" alt="record" draggable="false">
+        </div>
+      </div>
+
+      <!-- 2) 介绍文字 -->
+      <div class="samurai-intro">
+        <p>Nujabes（ヌジャベス）は、2004年に放送されたテレビアニメ『サムライチャンプルー』の音楽制作に深く関わりました。彼は主にオープニングテーマや劇中音楽を担当し、作品全体の雰囲気を決定づける重要な役割を果たしました。</p>
+        <p>Nujabesが本作のために作り上げた音楽は、ジャズやソウルの要素を取り入れつつ、落ち着いたビートと情緒的なメロディを特徴としています。これにより『サムライチャンプルー』は、時代劇とヒップホップを掛け合わせた独自の世界観を確立し、アニメ史の中でも特異な存在感を放つ作品となりました。代表的な楽曲には「Battlecry」のほか、「Aruarian Dance」や「Mystline」などがあり、これらはファンの間で長く愛されています。</p>
+        <p>Nujabesにとって『サムライチャンプルー』への参加は、国内外での知名度を大きく高める転機となりました。彼の音楽はアニメを通じて世界中の視聴者に届き、海外ファンの間で「日本のLo-Fi Hip Hopを代表する存在」として広く認識されるようになったのです。この作品をきっかけに、Nujabesはアニメ音楽とヒップホップの橋渡し的な存在として、国際的な評価を確立しました。</p>
+      </div>
+
+      <!-- 3) 动画展示模块 A -->
+      <article class="showcase">
+        <h3 class="showcase-title">Counting Stars</h3>
+        <div class="showcase-media">
+          <video class="samurai-video" controls preload="metadata" playsinline controlsList="nodownload noremoteplayback noplaybackrate" disablePictureInPicture>
+            <source src="mov/mov-11.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 小播放器（独立 audio） -->
+        <div class="local-player" data-src="music/Nujabes - Counting Stars.flac">
+          <button class="lp-toggle" aria-label="play/pause">▶︎</button>
+          <input class="lp-seek" type="range" min="0" max="1000" value="0" step="1">
+          <span class="lp-time"><span class="lp-cur">0:00</span>／<span class="lp-dur">0:00</span></span>
+        </div>
+
+        <p class="showcase-text">「Counting Stars」は『サムライチャンプルー』第11話「Gamblers and Gallantry」のラストシーンで流れる楽曲です。ジンが遊郭の女性シノを助け、最後に別れを告げる切ない場面で使用されました。インストゥルメンタルの旋律は、物語の余韻と儚さを際立たせ、視聴者の心に深い印象を残しました。</p>
+      </article>
+
+      <!-- 3) 动画展示模块 B -->
+      <article class="showcase">
+        <h3 class="showcase-title">Aruarian Dance</h3>
+        <div class="showcase-media">
+          <video class="samurai-video" controls preload="metadata" playsinline controlsList="nodownload noremoteplayback noplaybackrate" disablePictureInPicture>
+            <source src="mov/mov-06.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="local-player" data-src="music/Nujabes - Aruarian Dance.flac">
+          <button class="lp-toggle" aria-label="play/pause">▶︎</button>
+          <input class="lp-seek" type="range" min="0" max="1000" value="0" step="1">
+          <span class="lp-time"><span class="lp-cur">0:00</span>／<span class="lp-dur">0:00</span></span>
+        </div>
+
+        <p class="showcase-text">「Aruarian Dance」は『サムライチャンプルー』第6話で使用されたNujabesの代表的なインストゥルメンタルです。静かな風景描写や旅の情景に重なり、淡い哀愁と余韻を与える役割を果たしました。シンプルながらも心地よい旋律は作品全体の雰囲気を象徴し、今もファンに深く愛されています。</p>
+      </article>
+
+      <!-- 4) 底图 -->
+      <figure class="samurai-hero">
+        <img src="img/samurai02.svg" alt="">
+      </figure>
+    </div>
+
+    <!-- 旋转音效（独立于主播放器） -->
+    <audio id="sfxAudio" preload="auto"></audio>
+  </section>
+
+  <!-- ライブ -->
+  <section id="live" class="page section-block">
+    <div class="container">
+      <h2 class="sec-title align-right">ライブ</h2>
+
+      <!-- 80vh 的 YouTube 响应式播放器 -->
+      <div class="yt-box">
+        <div id="ytLive"></div> <!-- 由 YouTube Iframe API 注入 iframe -->
+      </div>
+
+      <!-- 说明文字 -->
+      <div class="live-desc">
+        <p>長年にわたり Nujabes の「Luv(sic)」シリーズで共演してきたラッパー・Shing02 と、イギリスのヒップホップバンド・OMA が、2024年3月9日に東京・Liquidroom で共演を果たしました。</p>
       </div>
     </div>
   </section>
 
-  <!-- コンサート -->
-  <section id="live" class="page section-block">
-    <div class="container">
-      <h2 class="sec-title align-right">コンサート</h2>
-      <div class="intro">
-        <p>Nujabesのライブ活動とコンサート情報について。</p>
-        <p>残念ながら、2010年の急逝により、多くのファンがライブを観る機会を失いました。</p>
-      </div>
-    </div>
-  </section>
+  <footer id="siteFooter" class="site-footer" role="contentinfo">
+    トップへ戻る
+  </footer>
+
+  <!-- 右下角圆圈播放器（默认隐藏） -->
+  <button id="circlePlayer" class="circle-player" aria-label="再生/一時停止">
+    <img id="cpPlay"  class="icon" src="img/bofang.svg"  alt="">
+    <img id="cpPause" class="icon" src="img/zanting.svg" alt="" style="display:none">
+  </button>
 
 <script src="script.js"></script>
 </body>

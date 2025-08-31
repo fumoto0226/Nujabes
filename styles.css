@@ -272,7 +272,7 @@ a {
 /* ============ 其他区块基础样式 ============ */
 section.page {
   min-height: 92svh;
-  padding: 96px clamp(16px, 4vw, 36px) 140px;
+  padding: 96px clamp(16px, 4vw, 36px) 40px;
   background: #f9f9f9;
   border-top: 0px solid var(--border);
 }
@@ -475,26 +475,41 @@ section.page {
   opacity: 0.35;
 }
 
-.player-fab {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translate(-50%, 120%);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: #E8E8E8;
-  color: var(--ink);
-  transition: transform 0.28s ease;
+/* 右下角圆圈播放器 */
+.circle-player{
+  position: fixed; 
+  right: 20px; 
+  bottom: 20px;
+  z-index: 70;
+  width: 60px; 
+  height: 60px; 
+  border-radius: 50%;
+  background: #f1f1f1;
+  border: 3px solid #bebebe;
+  cursor: pointer; 
+  user-select: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateX(100px);
+  opacity: 0;
   pointer-events: none;
 }
-
-.player-fab .slider {
-  width: min(56vw, 520px);
-  background: linear-gradient(90deg, var(--accent) var(--p, 0%), #000000 0);
+.circle-player.show{ 
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.circle-player .icon{ 
+  width: 24px; 
+  height: 24px; 
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.circle-player:hover{
+  background: #f0f0f0;
+  border-color: #38c423;
 }
 
 .show {
@@ -506,7 +521,116 @@ section.page {
   pointer-events: auto;
 }
 
-.player-fab.show {
-  transform: translate(-50%, 0);
-  pointer-events: auto;
+/* ============ サムライ チャンプルー 部分样式 ============ */
+
+/* 旋转唱片 */
+.record-wrap{
+  display:grid; place-items:center;
+  margin: 22px auto 68px;
+  
 }
+/* 外壳：持续线性旋转（基转） */
+#recordSpin{
+  display:inline-block;
+  animation: baseSpin 28s linear infinite;
+}
+@keyframes baseSpin{ to { transform: rotate(360deg); } }
+
+/* 内层唱片图：不被浏览器原生拖动/选中，允许手势事件 */
+#record{
+  width:min(360px, 58vw); height:auto; display:block;
+  will-change: transform;
+  -webkit-user-drag: none;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+  /* 让 WAAPI 写入 transform；无需预设 transform */
+}
+#record:active{ cursor: grabbing; }
+@keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+/* 介绍文字区 */
+.samurai-intro{
+  max-width:min(820px,60%); margin:0 auto 26px; line-height:1.9;
+  font-size: 15.5px;
+}
+
+/* 展示模块卡片 */
+.showcase{
+  background:#ececec;          /* 比页面背景略深 */
+  border:1px solid #d6d6d6;    /* 浅色沟边 */
+  border-radius:4px;
+  padding:16px; margin:66px auto;
+  max-width:min(900px,70%);
+}
+.showcase-title{
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--ink);
+}
+.showcase-media{ margin-bottom:18px }
+.samurai-video{ 
+  width:100%; height:auto; display:block; background:#000; border-radius:2px;
+}
+
+
+.local-player{
+  display:flex; align-items:center; gap:12px; margin:20px 20px 10px;
+  background:#f5f5f5; border:1px solid #ddd; border-radius:999px; padding:8px 12px;
+}
+.lp-toggle{ width:32px; height:32px; border:none; border-radius:999px; cursor:pointer; background:#fff }
+.lp-seek{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:4px; border-radius:999px;
+  background:linear-gradient(90deg, var(--accent,#ff2ea6) var(--p,0%), #bbb 0);
+}
+.lp-seek::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:50%; background:var(--accent,#ff2ea6); border:none;
+}
+.lp-time{ font-variant-numeric:tabular-nums; font-size:12px; opacity:.75 }
+.showcase-text{ margin:22px 24px 16px  ; line-height:1.9;font-size: 15px; }
+
+/* 底图 */
+.samurai-hero{ max-width:600px; margin:136px auto 0 }
+.samurai-hero img{ width:100%; height:auto; display:block }
+
+/* ============ ライブ区块样式 ============ */
+
+/* YouTube播放器容器 */
+.yt-box{
+  /* 宽度：容器内最大化；高度：不超过 80vh；保持 16:9 */
+  width: min(1000px, 96vw);
+  height: min(80vh, calc(96vw * 9 / 16));
+  margin: 12px auto 18px;
+  position: relative;
+  background:#000; border-radius:4px; overflow:hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+}
+/* API 注入的 iframe 填满盒子 */
+.yt-box iframe{
+  position:absolute; inset:0; width:100%; height:100%; border:0;
+}
+
+/* 说明文字 */
+.live-desc{
+  max-width:min(1000px,98%); margin: 10px auto 0; line-height:1.9;
+  font-size: 15.5px;
+}
+
+/* 页尾：全宽贴边，无左右/底部空隙 */
+.site-footer{
+  margin: 0;                    /* 无外边距 */
+  padding: 30px 12px;           /* 内边距可按需调 */
+  width: 100%;
+  background: #e9e9e9;
+  color: #222;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  border-top: 1px solid #dcdcdc;  /* 可选：与内容区分 */
+}
+
+/* 若发现某些移动端底部出现安全区空白，可启用这行（只是内部留白，不是外部缝隙）*/
+/* .site-footer{ padding-bottom: max(16px, env(safe-area-inset-bottom)); } */
